@@ -3,13 +3,14 @@ class Neural
 	@@NbBestGenom=10
 	@@NbGenomeByGeneration=@@NbBestGenom**2
 	@@GenomMixRatio=0.5
-	@@GenomMutationRatio=0.0001
+	@@GenomMutationRatio=0.5
 	
 	def initialize(pNbInput,pNbOutput,pNbNeuronByLayer,pConfig,pLearningMode) 
 		@NbNeuronByLayer,@Config,@LearningMode = pNbNeuronByLayer,pConfig,pLearningMode
 		@GenomTab,@GenomBestTab,@GenomBestTabScore=[],[],[]
 		@NbGenByGenom= pNbInput * pNbNeuronByLayer + pNbNeuronByLayer * pNbNeuronByLayer + pNbNeuronByLayer * pNbOutput
 		@GenomCurrentIndex=0
+		@Mutation =false
 
 		if (pLearningMode)
 			#init genom tab by random values
@@ -76,12 +77,17 @@ class Neural
         @@NbBestGenom.times do |iB1|
 			@@NbBestGenom.times do |iB2|
 				@NbGenByGenom.times do |i|
-                    @GenomTab[indexGenom][i] =(rand > @@GenomMixRatio) ?  @GenomBestTab[iB1][i]:@GenomBestTab[iB2][i]
-					@GenomTab[indexGenom][i] = rand*2.0-1.0	if(rand < @@GenomMutationRatio)
+					if( @Mutation && rand < @@GenomMutationRatio)
+						@GenomTab[indexGenom][i] = rand*2.0-1.0	
+					else
+						@GenomTab[indexGenom][i] = (rand > @@GenomMixRatio) ?  @GenomBestTab[iB1][i]:@GenomBestTab[iB2][i]
+					end
 				end
 				indexGenom+=1
 			end
 		end
+		
+		@Mutation = !@Mutation 	 	
                     
         @GenomCurrentIndex = 0
         @Config = @GenomTab[@GenomCurrentIndex]
